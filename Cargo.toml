@@ -5,3 +5,5 @@ authors = ["Casey Primozic <me@ameo.link>"]
 edition = "2018"
 
 [dependencies]
+libc = "*"
+packed_simd = {version="*", features=["into_bits"]}

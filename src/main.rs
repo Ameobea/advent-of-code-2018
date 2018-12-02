@@ -1,35 +1,17 @@
-use std::collections::HashSet;
+#![feature(core_intrinsics, const_raw_ptr_deref, stdsimd, test)]
 
-const INPUT: &str = include_str!("../input.txt");
+pub mod day1;
+pub mod day2;
 
-fn parse_input() -> impl Iterator<Item = isize> + Clone {
-    INPUT
-        .split('\n')
-        .map(|n| n.parse().map_err(|_| ()))
-        .filter(Result::is_ok)
-        .map(Result::unwrap)
+fn print_day(i: usize) {
+    println!("== DAY {} ==", i);
 }
 
-fn part1() -> isize {
-    parse_input().sum()
-}
+const DAYS: [fn(); 2] = [day1::run, day2::run];
 
-fn part2() -> isize {
-    let mut seen_frequencies: HashSet<isize> = HashSet::new();
-    seen_frequencies.insert(0);
-
-    let mut cur_num = 0;
-    for num in parse_input().cycle() {
-        cur_num += num;
-        if !seen_frequencies.insert(cur_num) {
-            return cur_num;
-        }
+pub fn main() {
+    for (i, day) in DAYS.iter().enumerate() {
+        print_day(i);
+        day();
     }
-
-    unreachable!();
-}
-
-fn main() {
-    println!("Part 1: {}", part1());
-    println!("Part 2: {}", part2());
 }
