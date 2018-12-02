@@ -107,8 +107,8 @@ fn part2() {
     let zeroes = u8x32::splat(0u8);
     let ones = u8x32::splat(1u8);
 
-    for line in parsed_input.iter() {
-        for line2 in parsed_input.iter() {
+    for (i, line) in parsed_input.iter().enumerate() {
+        for line2 in parsed_input[i + 1..].iter() {
             let equality_mask: m8x32 = (*line).eq(*line2);
             let equality_bytes: u8x32 = equality_mask.select(zeroes, ones);
             // Elements that are equal are now `0usize` and ones that aren't are `1usize`
