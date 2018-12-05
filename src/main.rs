@@ -9,6 +9,7 @@ pub mod day2;
 pub mod day3;
 pub mod day4;
 pub mod day5;
+pub mod day5_cryze;
 
 fn print_day(i: usize) {
     println!("== DAY {} ==", i);
