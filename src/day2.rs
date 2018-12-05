@@ -2,11 +2,7 @@ extern crate libc;
 extern crate packed_simd;
 extern crate test;
 
-use std::collections::HashMap;
-use std::hint::unreachable_unchecked;
-use std::intrinsics::likely;
-use std::mem;
-use std::slice;
+use std::{collections::HashMap, hint::unreachable_unchecked, intrinsics::likely, mem, slice};
 
 use packed_simd::{m8, m8x32, u8x32};
 
@@ -133,9 +129,7 @@ fn part2() {
 }
 
 #[bench]
-fn bench_part2(b: &mut test::Bencher) {
-    b.iter(part2)
-}
+fn bench_part2(b: &mut test::Bencher) { b.iter(part2) }
 
 pub fn run() {
     println!("Part 1: {}", part1());

@@ -49,15 +49,11 @@ impl Event {
 }
 
 impl PartialOrd for Event {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
 }
 
 impl Ord for Event {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.timestamp().cmp(&other.timestamp())
-    }
+    fn cmp(&self, other: &Self) -> Ordering { self.timestamp().cmp(&other.timestamp()) }
 }
 
 fn parse_action(action: &str) -> Action {
@@ -108,7 +104,7 @@ fn get_guard_sleep_totals() -> Vec<[usize; 60]> {
                 }
 
                 (cur_guard_id, last_ts, 61)
-            }
+            },
         },
     );
 
@@ -147,7 +143,7 @@ fn part1() -> usize {
     best_guard_id * best_minute
 }
 
-fn part2() -> impl ::std::fmt::Display {
+pub fn part2() -> impl ::std::fmt::Display {
     let guard_sleep_totals: Vec<[usize; 60]> = get_guard_sleep_totals();
 
     let (most_slept_minute_guard_id, (_, most_slept_minute)) = find_max_ix_by(
@@ -162,6 +158,14 @@ fn part2() -> impl ::std::fmt::Display {
     );
 
     most_slept_minute_guard_id * most_slept_minute
+}
+
+#[cfg(test)]
+mod test {
+    extern crate test;
+
+    #[bench]
+    fn bench_part_2(b: &mut test::Bencher) { b.iter(super::part2) }
 }
 
 pub fn run() {

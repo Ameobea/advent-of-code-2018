@@ -10,9 +10,7 @@ fn parse_input() -> impl Iterator<Item = isize> + Clone {
         .map(Result::unwrap)
 }
 
-fn part1() -> isize {
-    parse_input().sum()
-}
+fn part1() -> isize { parse_input().sum() }
 
 fn part2() -> isize {
     let mut seen_frequencies: HashSet<isize> = HashSet::new();
