@@ -13,6 +13,7 @@ pub mod day4;
 pub mod day5;
 pub mod day6;
 pub mod day7;
+pub mod day8;
 
 fn print_day(i: usize) {
     println!("== DAY {} ==", i);
@@ -26,6 +27,7 @@ const DAYS: &[fn()] = &[
     day5::run,
     day6::run,
     day7::run,
+    day8::run,
     day10::run,
 ];
 
