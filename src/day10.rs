@@ -50,7 +50,8 @@ fn solve() -> (String, usize) {
         if min_y_range <= y_range {
             let mut grid = vec![vec![' '; x_range as usize]; y_range as usize];
             for line in &points {
-                grid[(line.pos_y - line.velocity_y - min_y) as usize][(line.pos_x - line.velocity_x - min_x) as usize] = '#';
+                grid[(line.pos_y - line.velocity_y - min_y) as usize]
+                    [(line.pos_x - line.velocity_x - min_x) as usize] = '#';
             }
 
             let message = grid
