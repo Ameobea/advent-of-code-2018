@@ -7,7 +7,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "aoc-temp"
+name = "aoc-2018"
 version = "0.1.0"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",

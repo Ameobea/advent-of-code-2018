@@ -1,12 +1,12 @@
 [package]
-name = "aoc-temp"
+name = "aoc-2018"
 version = "0.1.0"
 authors = ["Casey Primozic <me@ameo.link>"]
 edition = "2018"
 
 [dependencies]
 libc = "0.2.44"
-packed_simd = {version="0.3.1", features=["into_bits"]}
+packed_simd = { version = "0.3.1", features = ["into_bits"] }
 lazy_static = "1.2.0"
 regex = "1.1.0"
 chrono = "0.4.6"
