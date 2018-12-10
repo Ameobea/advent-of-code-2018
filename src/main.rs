@@ -1,8 +1,9 @@
-#![feature(core_intrinsics, const_raw_ptr_deref, stdsimd, test)]
+#![feature(box_syntax, core_intrinsics, const_raw_ptr_deref, nll, stdsimd, test)]
 
 extern crate regex;
 #[macro_use]
 extern crate lazy_static;
+extern crate slab;
 
 pub mod day1;
 pub mod day10;
@@ -11,6 +12,7 @@ pub mod day3;
 pub mod day4;
 pub mod day5;
 pub mod day6;
+pub mod day7;
 
 fn print_day(i: usize) {
     println!("== DAY {} ==", i);
@@ -23,6 +25,7 @@ const DAYS: &[fn()] = &[
     day4::run,
     day5::run,
     day6::run,
+    day7::run,
     day10::run,
 ];
 
