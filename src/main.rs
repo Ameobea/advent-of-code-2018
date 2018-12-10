@@ -9,12 +9,13 @@ pub mod day2;
 pub mod day3;
 pub mod day4;
 pub mod day5;
+pub mod day10;
 
 fn print_day(i: usize) {
     println!("== DAY {} ==", i);
 }
 
-const DAYS: &[fn()] = &[day1::run, day2::run, day3::run, day4::run, day5::run];
+const DAYS: &[fn()] = &[day1::run, day2::run, day3::run, day4::run, day5::run, day10::run];
 
 pub fn main() {
     for (i, day) in DAYS.iter().enumerate() {
