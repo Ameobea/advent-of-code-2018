@@ -73,21 +73,6 @@ fn part1() -> usize {
         }
     }
 
-    // let mapped_grid: String = grid
-    //     .into_iter()
-    //     .map(|row| {
-    //         row.into_iter()
-    //             .map(|cell| match cell {
-    //                 GridPoint::Closest(Some(i)) => (i as u8 + 65) as char,
-    //                 GridPoint::Closest(None) => '.',
-    //                 GridPoint::Evil(_) => ' ',
-    //             })
-    //             .collect::<String>()
-    //     })
-    //     .collect::<Vec<_>>()
-    //     .join("\n");
-    // print!("{}", mapped_grid);
-
     largest_areas
         .into_iter()
         .enumerate()

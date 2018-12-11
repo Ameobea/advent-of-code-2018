@@ -1,4 +1,5 @@
 #![feature(box_syntax, core_intrinsics, const_raw_ptr_deref, nll, stdsimd, test)]
+#![allow(clippy::needless_range_loop, clippy::type_complexity)]
 
 extern crate regex;
 #[macro_use]
@@ -7,6 +8,7 @@ extern crate slab;
 
 pub mod day1;
 pub mod day10;
+pub mod day11;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -31,6 +33,7 @@ const DAYS: &[fn()] = &[
     day8::run,
     day9::run,
     day10::run,
+    day11::run,
 ];
 
 pub fn main() {
