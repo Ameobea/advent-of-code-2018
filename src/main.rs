@@ -9,6 +9,7 @@ extern crate slab;
 pub mod day1;
 pub mod day10;
 pub mod day11;
+pub mod day12;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -34,6 +35,7 @@ const DAYS: &[fn()] = &[
     day9::run,
     day10::run,
     day11::run,
+    day12::run,
 ];
 
 pub fn main() {
