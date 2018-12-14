@@ -11,6 +11,7 @@ pub mod day10;
 pub mod day11;
 pub mod day12;
 pub mod day13;
+pub mod day14;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -38,6 +39,7 @@ const DAYS: &[fn()] = &[
     day11::run,
     day12::run,
     day13::run,
+    day14::run,
 ];
 
 pub fn main() {
