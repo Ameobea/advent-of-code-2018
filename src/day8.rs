@@ -58,13 +58,9 @@ fn parse_input() -> impl Iterator<Item = Node> {
     items.into_iter()
 }
 
-fn part1() -> usize {
-    parse_input().map(|node| node.sum_metadata()).sum()
-}
+fn part1() -> usize { parse_input().map(|node| node.sum_metadata()).sum() }
 
-fn part2() -> usize {
-    parse_input().next().unwrap().value()
-}
+fn part2() -> usize { parse_input().next().unwrap().value() }
 
 pub fn run() {
     println!("Part 1: {}", part1());

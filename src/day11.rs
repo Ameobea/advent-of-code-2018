@@ -1,8 +1,6 @@
 const INPUT: &str = include_str!("../input/day11.txt");
 
-fn parse_input() -> usize {
-    INPUT.trim().parse().unwrap()
-}
+fn parse_input() -> usize { INPUT.trim().parse().unwrap() }
 
 fn populate_powers() -> [[i32; 300]; 300] {
     let input = parse_input();

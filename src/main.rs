@@ -1,10 +1,21 @@
-#![feature(box_syntax, core_intrinsics, const_raw_ptr_deref, nll, stdsimd, test)]
+#![feature(
+    box_syntax,
+    core_intrinsics,
+    const_raw_ptr_deref,
+    nll,
+    stdsimd,
+    test,
+    thread_local
+)]
 #![allow(clippy::needless_range_loop, clippy::type_complexity)]
 
 extern crate regex;
 #[macro_use]
 extern crate lazy_static;
 extern crate slab;
+extern crate structopt;
+
+use structopt::StructOpt;
 
 pub mod day1;
 pub mod day10;
@@ -46,8 +57,21 @@ const DAYS: &[fn()] = &[
     day16::run,
 ];
 
+#[derive(StructOpt)]
+struct Args {
+    #[structopt(short = "d", long = "day")]
+    pub days: Vec<usize>,
+}
+
 pub fn main() {
-    for (i, day) in DAYS.iter().enumerate() {
+    let opt = Args::from_args();
+    let days_iterator: Box<Iterator<Item = (usize, &'static fn())>> = if opt.days.is_empty() {
+        box DAYS.iter().enumerate()
+    } else {
+        box opt.days.into_iter().map(|i| (i - 1, &DAYS[i - 1]))
+    };
+
+    for (i, day) in days_iterator {
         print_day(i + 1);
         day();
     }

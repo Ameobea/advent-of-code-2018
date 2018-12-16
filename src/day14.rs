@@ -1,8 +1,6 @@
 const INPUT: &str = include_str!("../input/day14.txt");
 
-fn parse_input() -> usize {
-    INPUT.trim().parse().unwrap()
-}
+fn parse_input() -> usize { INPUT.trim().parse().unwrap() }
 
 fn part1() -> u64 {
     let input = parse_input();

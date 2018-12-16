@@ -75,7 +75,7 @@ fn solve() -> (usize, usize) {
             if i == last_marble_value {
                 part1 = *player_scores.iter().max().unwrap();
             } else if i == last_marble_value * 100 {
-                return (part1, player_scores.into_iter().max().unwrap())
+                return (part1, player_scores.into_iter().max().unwrap());
             }
         }
     }

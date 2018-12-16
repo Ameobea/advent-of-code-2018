@@ -13,7 +13,11 @@ fn parse_input() -> (Vec<bool>, Vec<([bool; 5], bool)>) {
     let initial_state = &RGX.captures(lines.next().unwrap()).unwrap()[1];
     let parsed_initial_state = initial_state.chars().map(|c| c == '#');
     let padding = iter::repeat(false).take(PADDING_SIZE);
-    let padded_parsed_initial_state = padding.clone().chain(parsed_initial_state).chain(padding).collect();
+    let padded_parsed_initial_state = padding
+        .clone()
+        .chain(parsed_initial_state)
+        .chain(padding)
+        .collect();
 
     let rules = lines
         .filter(|l| !l.is_empty())
@@ -100,8 +104,7 @@ fn solve() -> (isize, i64) {
 
     let total_for_50_billion: i64 = enumerate_true_state(&critical_section)
         .map(|(i, _)| {
-            i as i64 + 50_000_000_000i64 - first_repeat_iter
-                + critical_section_start as i64
+            i as i64 + 50_000_000_000i64 - first_repeat_iter + critical_section_start as i64
                 - PADDING_SIZE as i64
         })
         .sum();

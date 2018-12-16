@@ -1,5 +1,7 @@
-use std::collections::{HashMap, HashSet};
-use std::usize;
+use std::{
+    collections::{HashMap, HashSet},
+    usize,
+};
 
 use regex::Regex;
 use slab::Slab;
@@ -20,9 +22,7 @@ fn parse_input() -> impl Iterator<Item = (char, char)> {
 struct DagNode(Vec<usize>, char);
 
 impl DagNode {
-    pub fn new(c: char) -> Self {
-        DagNode(Vec::new(), c)
-    }
+    pub fn new(c: char) -> Self { DagNode(Vec::new(), c) }
 }
 
 fn init_nodes() -> (
@@ -97,9 +97,7 @@ fn part1() -> String {
     ordered
 }
 
-fn dur(c: char) -> usize {
-    ((c as u8) - 64) as usize + 60
-}
+fn dur(c: char) -> usize { ((c as u8) - 64) as usize + 60 }
 
 fn part2() -> usize {
     let (nodes, mut prereq_counts, key_mappings, linked_to) = init_nodes();

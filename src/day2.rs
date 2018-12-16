@@ -118,7 +118,9 @@ fn part2() {
                 for (i, c) in line1_chars[0..27].iter().enumerate() {
                     if unsafe { likely(*c == line2_chars[i]) } {
                         #[allow(clippy::cast_lossless)]
-                        unsafe { libc::putchar(*c as libc::c_int) };
+                        unsafe {
+                            libc::putchar(*c as libc::c_int)
+                        };
                     }
                 }
                 return;

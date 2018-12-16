@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 const INPUT: &str = include_str!("../input/day13.txt");
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -123,19 +122,19 @@ fn parse_input() -> (Vec<Vec<Option<Track>>>, Vec<Cart>) {
                         '>' => {
                             mkcart(Direction::Right);
                             Some(Track::Horizontal)
-                        }
+                        },
                         '<' => {
                             mkcart(Direction::Left);
                             Some(Track::Horizontal)
-                        }
+                        },
                         '^' => {
                             mkcart(Direction::Up);
                             Some(Track::Vertical)
-                        }
+                        },
                         'v' => {
                             mkcart(Direction::Down);
                             Some(Track::Vertical)
-                        }
+                        },
                         '/' => Some(Track::ConnectRight),
                         '\\' => Some(Track::ConnectLeft),
                         _ => unreachable!(),
