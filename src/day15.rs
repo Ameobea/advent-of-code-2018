@@ -117,7 +117,7 @@ fn attack(
     cur_x: usize,
     cur_y: usize,
     state: &mut [Vec<Cell>],
-) -> Option<bool> {
+) -> bool {
     let mut best_adjascent_enemy = None;
     for (x_diff, y_diff) in &[(-1, 0), (1, 0), (0, -1), (0, 1)] {
         let (xa, ya) = (cur_x as isize + x_diff, cur_y as isize + y_diff);
@@ -149,12 +149,10 @@ fn attack(
         let died = state[target_y][target_x].damage(cell.get_attack_power(cur_elf_attack_power));
         if died {
             state[target_y][target_x] = Cell::Blank;
-            Some(true)
-        } else {
-            Some(false)
         }
+        true
     } else {
-        None
+        false
     }
 }
 
@@ -223,10 +221,8 @@ fn solve(
                 }
 
                 // check if there is an enemy adjascent
-                if let Some(did_die) = attack(cur_elf_attack_power, cell, x, y, &mut state) {
-                    if did_die && elves_must_win && count_elves(&state) != original_elf_count {
-                        return None;
-                    }
+                let did_attack = attack(cur_elf_attack_power, cell, x, y, &mut state);
+                if did_attack {
                     continue;
                 }
 
@@ -248,11 +244,11 @@ fn solve(
                 }
 
                 if possible_targets.is_empty() {
-                    if state
+                    let all_enemies_defeated = state
                         .iter()
                         .flat_map(|l| l.iter())
-                        .any(|c| c.is_enemy(cell))
-                    {
+                        .any(|c| c.is_enemy(cell));
+                    if all_enemies_defeated {
                         // there are remaining targets, just none we can attack.
                         continue;
                     }
@@ -299,9 +295,8 @@ fn solve(
                             (usize::max_value(), usize::max_value());
 
                         for (xa, ya) in iter_blank_neighbors(&state, x, y) {
-                            if let Some(subsolution) = pathfind(&state, xa, ya, target_x, target_y)
-                            {
-                                if subsolution.len() >= min_solution_len {
+                            if let Some(solution) = pathfind(&state, xa, ya, target_x, target_y) {
+                                if solution.len() >= min_solution_len {
                                     continue;
                                 }
 
@@ -329,12 +324,7 @@ fn solve(
                     moved_entities.push((dst_x, dst_y));
 
                     // check if there is an enemy adjascent and attack if there is
-                    if attack(cur_elf_attack_power, cell, dst_x, dst_y, &mut state) == Some(true)
-                        && count_elves(&state) != original_elf_count
-                        && elves_must_win
-                    {
-                        return None;
-                    }
+                    attack(cur_elf_attack_power, cell, dst_x, dst_y, &mut state);
                 }
             }
         }
@@ -346,7 +336,7 @@ fn solve(
         let after_elf_count = state
             .iter()
             .flat_map(|l| l.iter())
-            .filter(|c| c.is_enemy(Cell::Goblin(100)))
+            .filter(|c| c.is_enemy(Cell::Goblin(0)))
             .count();
         if after_elf_count != original_elf_count {
             return None;
@@ -368,10 +358,10 @@ fn solve(
 fn part1() -> usize { solve(3, false, false, false).unwrap() }
 
 fn part2() -> usize {
-    (4i32..1000)
+    (0..100usize)
         .into_par_iter()
-        .map(|elf_attack_pow| solve(elf_attack_pow as usize, false, false, false))
-        .find_first(Option::is_some)
+        .map(|cur_elf_attack_power| solve(cur_elf_attack_power, true, false, false))
+        .find_first(|opt| opt.is_some())
         .unwrap()
         .unwrap()
 }

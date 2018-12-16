@@ -12,7 +12,7 @@ fn parse_line(line: &str) -> [usize; 4] {
     let mut res = [0usize; 4];
     let captures = RGX
         .captures(line)
-        .expect(&format!("regex captures failed for {:?}", line));
+        .unwrap_or_else(|| panic!("regex captures failed for {:?}", line));
     res[0] = captures[1].parse().unwrap();
     res[1] = captures[2].parse().unwrap();
     res[2] = captures[3].parse().unwrap();
@@ -48,14 +48,6 @@ fn parse_input() -> (
     (observed_executions.into_iter(), instructions)
 }
 
-fn btou(b: bool) -> usize {
-    if b {
-        1
-    } else {
-        0
-    }
-}
-
 fn exec(opcode: &str, in1: usize, in2: usize, out: usize, reg: &mut [usize; 4]) {
     reg[out] = match opcode {
         "addr" => reg[in1] + reg[in2],
@@ -68,12 +60,12 @@ fn exec(opcode: &str, in1: usize, in2: usize, out: usize, reg: &mut [usize; 4]) 
         "bori" => reg[in1] | in2,
         "setr" => reg[in1],
         "seti" => in1,
-        "gtir" => btou(in1 > reg[in2]),
-        "gtri" => btou(reg[in1] > in2),
-        "gtrr" => btou(reg[in1] > reg[in2]),
-        "eqir" => btou(in1 == reg[in2]),
-        "eqri" => btou(reg[in1] == in2),
-        "eqrr" => btou(reg[in1] == reg[in2]),
+        "gtir" => (in1 > reg[in2]) as usize,
+        "gtri" => (reg[in1] > in2) as usize,
+        "gtrr" => (reg[in1] > reg[in2]) as usize,
+        "eqir" => (in1 == reg[in2]) as usize,
+        "eqri" => (reg[in1] == in2) as usize,
+        "eqrr" => (reg[in1] == reg[in2]) as usize,
         _ => panic!("Invalid opcode: {}", opcode),
     }
 }
@@ -110,11 +102,12 @@ fn part2() -> usize {
     let mut valid_opcodes: Vec<Vec<HashSet<&str>>> = vec![Vec::new(); 16];
 
     for (before, op, after) in observed_executions {
-        let mut possible_opcodes = HashSet::new();
+        let mut possible_opcodes: HashSet<&str> = HashSet::new();
         for opcode in ALL_OPCODES {
             reg = before;
             exec(opcode, op[1], op[2], op[3], &mut reg);
             if after == reg {
+                #[allow(clippy::clone_double_ref)]
                 possible_opcodes.insert(opcode.clone());
             }
         }
