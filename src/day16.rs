@@ -125,7 +125,7 @@ fn part2() -> usize {
     let mut mappings: [&str; 16] = [""; 16];
     let mut found_mappings = 0;
 
-    loop {
+    while found_mappings < 16 {
         for i in 0..16 {
             if mappings[i] != "" {
                 continue;
@@ -148,10 +148,6 @@ fn part2() -> usize {
                 mappings[i] = valid_for_all.drain().next().unwrap();
                 found_mappings += 1;
             }
-        }
-
-        if found_mappings == 16 {
-            break;
         }
     }
 
