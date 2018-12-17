@@ -166,8 +166,8 @@ fn pathfind(
     fringe(
         &(src_x, src_y),
         |&(x, y)| iter_blank_neighbors(&state, x, y).map(|n| (n, 1)),
-        |(xt, yt)| manhattan_distance(*xt, *yt, dst_x, dst_y),
-        |n| *n == (dst_x, dst_y),
+        |&(xt, yt)| manhattan_distance(xt, yt, dst_x, dst_y),
+        |&n| n == (dst_x, dst_y),
     )
     .map(|(path, _)| path)
 }
