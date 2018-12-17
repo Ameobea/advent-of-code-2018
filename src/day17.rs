@@ -1,12 +1,8 @@
-extern crate regex;
-#[macro_use]
-extern crate lazy_static;
-
 use std::usize;
 
 use regex::Regex;
 
-const INPUT: &str = include_str!("../input.txt");
+const INPUT: &str = include_str!("../input/day17.txt");
 
 lazy_static! {
     static ref X_RGX: Regex = Regex::new("x=(\\d+)(?:\\.\\.(\\d+))?").unwrap();
@@ -41,8 +37,8 @@ enum Cell {
     Water,
 }
 
+#[allow(dead_code)]
 fn debug_world(world: &[Vec<Cell>]) {
-    // return;
     for row in world {
         for c in &row[300..] {
             print!(
@@ -112,16 +108,14 @@ fn spread_down(world: &mut Vec<Vec<Cell>>, x: usize, y: usize) -> bool {
     }
 }
 
-/// Returns the x coordinate of the cell at which water will begin to pour downward, unless it hits a wall or the side of amap in which `None` will be returned.
+/// Returns the x coordinate of the cell at which water will begin to pour downward, unless it hits
+/// a wall or the side of amap in which `None` will be returned.
 fn spread_left(
     world: &mut Vec<Vec<Cell>>,
     x: usize,
     y: usize,
     ignore_water: bool,
 ) -> Option<Option<usize>> {
-    // println!("left: {:?}", (x, y));
-    // debug_world(world);
-
     if x == 0 || world[y][x - 1] == Cell::Clay {
         return None;
     }
@@ -139,16 +133,14 @@ fn spread_left(
     spread_left(world, x - 1, y, ignore_water)
 }
 
-/// Returns the x coordinate of the cell at which water will begin to pour downward, unless it hits a wall or the side of amap in which `None` will be returned.
+/// Returns the x coordinate of the cell at which water will begin to pour downward, unless it hits
+/// a wall or the side of amap in which `None` will be returned.
 fn spread_right(
     world: &mut Vec<Vec<Cell>>,
     x: usize,
     y: usize,
     ignore_water: bool,
 ) -> Option<Option<usize>> {
-    // println!("left: {:?}", (x, y));
-    // debug_world(world);
-
     if x + 1 == world[0].len() || world[y][x + 1] == Cell::Clay {
         return None;
     }
@@ -166,7 +158,7 @@ fn spread_right(
     spread_right(world, x + 1, y, ignore_water)
 }
 
-fn part1() -> usize {
+fn compute_world() -> (usize, usize, Vec<Vec<Cell>>) {
     let (max_x, max_y, min_y) = parse_input().fold(
         (0, 0, usize::max_value()),
         |(max_x, max_y, min_y), (x, y)| {
@@ -175,8 +167,6 @@ fn part1() -> usize {
             (max_x.max(cur_max_x), max_y.max(cur_max_y), min_y.min(y.0))
         },
     );
-
-    println!("{:?}", (max_x, max_y));
 
     let mut world = vec![vec![Cell::Sand; max_x + 2]; max_y + 1];
     for (x, y) in parse_input() {
@@ -194,29 +184,64 @@ fn part1() -> usize {
 
     spread_down(&mut world, 500, 0);
 
-    debug_world(&world);
+    (min_y, max_y, world)
+}
 
+fn count_water(world: &[Vec<Cell>], min_y: usize, max_y: usize) -> usize {
     world[min_y..=max_y]
         .iter()
         .flat_map(|l| l.iter())
         .filter(|&&c| c == Cell::Water)
         .count()
+}
 
-    // not 2172
-    // not 132176
-    // not 132158
-    // not 31902
-    // not 31863
-    // not 31864
-    // not 31860
+fn part1() -> usize {
+    let (min_y, max_y, world) = compute_world();
+    count_water(&world, min_y, max_y)
 }
 
 fn part2() -> usize {
-    0
+    let (min_y, max_y, mut world) = compute_world();
+
+    let mut count = count_water(&world, min_y, max_y);
+    let row_len = world[0].len();
+    loop {
+        for x in 0..(row_len) {
+            for y in (1..world.len()).rev() {
+                if world[y][x] == Cell::Sand && world[y - 1][x] == Cell::Water {
+                    world[y - 1][x] = Cell::Sand;
+                }
+            }
+        }
+
+        for row in &mut world {
+            for i in 0..(row.len() - 1) {
+                if row[i] == Cell::Sand && row[i + 1] == Cell::Water {
+                    row[i + 1] = Cell::Sand;
+                } else if row[i + 1] == Cell::Sand && row[i] == Cell::Water {
+                    row[i] = Cell::Sand;
+                }
+
+                let i = (row.len() - i) - 1;
+                if row[i] == Cell::Sand && row[i - 1] == Cell::Water {
+                    row[i - 1] = Cell::Sand;
+                } else if row[i - 1] == Cell::Sand && row[i] == Cell::Water {
+                    row[i] = Cell::Sand;
+                }
+            }
+        }
+
+        let new_count = count_water(&world, min_y, max_y);
+        if new_count == count {
+            // debug_world(&world);
+            return new_count;
+        } else {
+            count = new_count;
+        }
+    }
 }
 
-pub fn main() {
+pub fn run() {
     println!("Part 1: {:?}", part1());
     println!("Part 2: {:?}", part2());
 }
-

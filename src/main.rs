@@ -25,6 +25,7 @@ pub mod day13;
 pub mod day14;
 pub mod day15;
 pub mod day16;
+pub mod day17;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -55,6 +56,7 @@ const DAYS: &[fn()] = &[
     day14::run,
     day15::run,
     day16::run,
+    day17::run,
 ];
 
 #[derive(StructOpt)]
