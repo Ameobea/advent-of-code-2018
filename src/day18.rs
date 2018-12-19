@@ -55,7 +55,7 @@ fn parse_input() -> Vec<Vec<Cell>> {
         .collect()
 }
 
-fn iter_visible<'a>(
+fn iter_neighbors<'a>(
     cells: &'a [Vec<Cell>],
     cur_x: usize,
     cur_y: usize,
@@ -75,7 +75,7 @@ fn tick(cells: Vec<Vec<Cell>>) -> Vec<Vec<Cell>> {
     for (y, row) in cells.iter().enumerate() {
         let mut new_row = Vec::with_capacity(row.len());
         for (x, c) in row.into_iter().enumerate() {
-            let new_cell = (*c).next(iter_visible(&cells, x, y));
+            let new_cell = (*c).next(iter_neighbors(&cells, x, y));
             new_row.push(new_cell);
         }
         new_cells.push(new_row);

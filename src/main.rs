@@ -5,7 +5,9 @@
     nll,
     stdsimd,
     test,
-    thread_local
+    thread_local,
+    never_type,
+    slice_patterns
 )]
 #![allow(clippy::needless_range_loop, clippy::type_complexity)]
 
@@ -17,6 +19,7 @@ extern crate structopt;
 
 use structopt::StructOpt;
 
+pub mod asm_common;
 pub mod day1;
 pub mod day10;
 pub mod day11;
@@ -27,6 +30,7 @@ pub mod day15;
 pub mod day16;
 pub mod day17;
 pub mod day18;
+pub mod day19;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -59,6 +63,7 @@ const DAYS: &[fn()] = &[
     day16::run,
     day17::run,
     day18::run,
+    day19::run,
 ];
 
 #[derive(StructOpt)]

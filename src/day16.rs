@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use crate::asm_common::*;
+
 const INPUT: &str = include_str!("../input/day16.txt");
 
 use regex::Regex;
@@ -8,8 +10,8 @@ lazy_static! {
     static ref RGX: Regex = Regex::new(".*?(\\d+).+?(\\d+).+?(\\d+).+?(\\d+).*").unwrap();
 }
 
-fn parse_line(line: &str) -> [usize; 4] {
-    let mut res = [0usize; 4];
+fn parse_line(line: &str) -> [usize; 6] {
+    let mut res = [0usize; 6];
     let captures = RGX
         .captures(line)
         .unwrap_or_else(|| panic!("regex captures failed for {:?}", line));
@@ -22,8 +24,8 @@ fn parse_line(line: &str) -> [usize; 4] {
 }
 
 fn parse_input() -> (
-    impl Iterator<Item = ([usize; 4], [usize; 4], [usize; 4])>,
-    impl Iterator<Item = [usize; 4]>,
+    impl Iterator<Item = ([usize; 6], [usize; 6], [usize; 6])>,
+    impl Iterator<Item = [usize; 6]>,
 ) {
     let lines = INPUT.lines().collect::<Vec<_>>();
 
@@ -48,41 +50,42 @@ fn parse_input() -> (
     (observed_executions.into_iter(), instructions)
 }
 
-fn exec(opcode: &str, in1: usize, in2: usize, out: usize, reg: &mut [usize; 4]) {
-    reg[out] = match opcode {
-        "addr" => reg[in1] + reg[in2],
-        "addi" => reg[in1] + in2,
-        "mulr" => reg[in1] * reg[in2],
-        "muli" => reg[in1] * in2,
-        "barr" => reg[in1] & reg[in2],
-        "bari" => reg[in1] & in2,
-        "borr" => reg[in1] | reg[in2],
-        "bori" => reg[in1] | in2,
-        "setr" => reg[in1],
-        "seti" => in1,
-        "gtir" => (in1 > reg[in2]) as usize,
-        "gtri" => (reg[in1] > in2) as usize,
-        "gtrr" => (reg[in1] > reg[in2]) as usize,
-        "eqir" => (in1 == reg[in2]) as usize,
-        "eqri" => (reg[in1] == in2) as usize,
-        "eqrr" => (reg[in1] == reg[in2]) as usize,
-        _ => panic!("Invalid opcode: {}", opcode),
-    }
-}
-
-const ALL_OPCODES: &[&str] = &[
-    "addr", "addi", "mulr", "muli", "barr", "bari", "borr", "bori", "setr", "seti", "gtir", "gtri",
-    "gtrr", "eqir", "eqri", "eqrr",
+const ALL_OPCODES: &[Opcode] = &[
+    Opcode::Addr,
+    Opcode::Addi,
+    Opcode::Mulr,
+    Opcode::Muli,
+    Opcode::Barr,
+    Opcode::Bari,
+    Opcode::Borr,
+    Opcode::Bori,
+    Opcode::Setr,
+    Opcode::Seti,
+    Opcode::Gtir,
+    Opcode::Gtri,
+    Opcode::Gtrr,
+    Opcode::Eqir,
+    Opcode::Eqri,
+    Opcode::Eqrr,
 ];
 
 fn part1() -> usize {
     let mut three_or_more_valid = 0;
     for (before, op, after) in parse_input().0 {
         let mut count = 0;
-        for opcode in ALL_OPCODES {
-            let mut reg = before;
-            exec(opcode, op[1], op[2], op[3], &mut reg);
-            if reg == after {
+        for &opcode in ALL_OPCODES {
+            let mut reg = Registers {
+                ip_register: None,
+                regs: before,
+            };
+            let instr = Instruction {
+                opcode,
+                in1: op[1],
+                in2: op[2],
+                out: op[3],
+            };
+            reg.exec(0, instr);
+            if reg.regs == after {
                 count += 1;
             }
         }
@@ -98,54 +101,73 @@ fn part1() -> usize {
 fn part2() -> usize {
     let (observed_executions, instructions) = parse_input();
 
-    let mut reg: [usize; 4] = [0; 4];
-    let mut valid_opcodes: Vec<Vec<HashSet<&str>>> = vec![Vec::new(); 16];
+    let mut reg = Registers::new(None);
+    let mut valid_opcodes: Vec<Vec<HashSet<Opcode>>> = vec![Vec::new(); 16];
 
     for (before, op, after) in observed_executions {
-        let mut possible_opcodes: HashSet<&str> = HashSet::new();
-        for opcode in ALL_OPCODES {
-            reg = before;
-            exec(opcode, op[1], op[2], op[3], &mut reg);
-            if after == reg {
+        let mut possible_opcodes: HashSet<Opcode> = HashSet::new();
+        for &opcode in ALL_OPCODES {
+            reg.regs = before;
+            let instr = Instruction {
+                opcode,
+                in1: op[1],
+                in2: op[2],
+                out: op[3],
+            };
+            reg.exec(0, instr);
+            if after == reg.regs {
                 #[allow(clippy::clone_double_ref)]
-                possible_opcodes.insert(opcode.clone());
+                possible_opcodes.insert(opcode);
             }
         }
 
         valid_opcodes[op[0]].push(possible_opcodes);
     }
 
-    let mut mappings: [&str; 16] = [""; 16];
+    let mut working_mappings: [Option<Opcode>; 16] = [None; 16];
     let mut found_mappings = 0;
 
     while found_mappings < 16 {
         for i in 0..16 {
-            if mappings[i] != "" {
+            if working_mappings[i].is_some() {
                 continue;
             }
 
-            let mut valid_for_all = HashSet::new();
-            for opcode in &valid_opcodes[i][0] {
+            let mut valid_for_all: HashSet<Opcode> = HashSet::new();
+            for &opcode in &valid_opcodes[i][0] {
                 valid_for_all.insert(opcode);
             }
 
             for matched_opcode_list in &valid_opcodes[i][1..] {
-                valid_for_all.retain(|opcode| matched_opcode_list.iter().any(|o| *o == **opcode));
+                valid_for_all.retain(|opcode| matched_opcode_list.iter().any(|&o| o == *opcode));
             }
 
-            for opcode in &mappings {
-                valid_for_all.remove(opcode);
+            for opcode in working_mappings.iter().filter_map(|&opc_opt| opc_opt) {
+                valid_for_all.remove(&opcode);
             }
 
             if valid_for_all.len() == 1 {
-                mappings[i] = valid_for_all.drain().next().unwrap();
+                working_mappings[i] = valid_for_all.drain().next();
                 found_mappings += 1;
             }
         }
     }
 
-    for [op, a, b, c] in instructions {
-        exec(mappings[op], a, b, c, &mut reg);
+    let mut mappings: [Opcode; 16] = [Opcode::Addi; 16];
+    for (i, mapping) in working_mappings.into_iter().enumerate() {
+        mappings[i] = mapping.unwrap();
+    }
+
+    for instr in instructions
+        .into_iter()
+        .map(|[opcode_code, in1, in2, out, ..]| Instruction {
+            opcode: mappings[opcode_code],
+            in1,
+            in2,
+            out,
+        })
+    {
+        reg.exec(0, instr);
     }
 
     reg[0]
