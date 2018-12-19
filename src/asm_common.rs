@@ -1,4 +1,5 @@
 use std::{
+    fmt::{Display, Formatter, Result as FmtResult},
     ops::{Index, IndexMut},
     str::FromStr,
 };
@@ -78,6 +79,16 @@ impl IndexMut<usize> for Registers {
     fn index_mut(&mut self, i: usize) -> &mut usize { &mut self.regs[i] }
 }
 
+impl Display for Registers {
+    fn fmt(&self, fmt: &mut Formatter) -> FmtResult {
+        write!(
+            fmt,
+            "[{} {} {} {} {} {}]",
+            self.regs[0], self.regs[1], self.regs[2], self.regs[3], self.regs[4], self.regs[5]
+        )
+    }
+}
+
 impl Registers {
     pub fn new(ip_register: Option<usize>) -> Self {
         Registers {
@@ -128,6 +139,16 @@ pub struct Instruction {
     pub out: usize,
 }
 
+impl Display for Instruction {
+    fn fmt(&self, fmt: &mut Formatter) -> FmtResult {
+        write!(
+            fmt,
+            "{:?} {} {} {}",
+            self.opcode, self.in1, self.in2, self.out
+        )
+    }
+}
+
 pub struct Instructions {
     pub ip: usize,
     pub instructions: Vec<Instruction>,
@@ -156,10 +177,9 @@ impl VM {
             Some(instr) => instr,
             None => return true,
         };
-        // println!("{}: {:?}", self.ip(), cur_instr);
-        self.instructions.ip = self.regs.exec(self.ip(), cur_instr);
+        let ip = self.ip();
+        self.instructions.ip = self.regs.exec(ip, cur_instr);
         self.instructions.ip += 1;
-        // println!("{:?}", self.regs);
         return false;
     }
 
