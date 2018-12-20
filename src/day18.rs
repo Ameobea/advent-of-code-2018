@@ -20,21 +20,23 @@ impl Cell {
                 if neighbors.filter(|&c| c == Cell::Lumberyard).count() >= 3 {
                     return Cell::Lumberyard;
                 },
-            Cell::Lumberyard =>
-                if neighbors.fold((false, false), |(found_lumberyard, found_trees), c| {
-                    (
-                        c == Cell::Lumberyard || found_lumberyard,
-                        c == Cell::Trees || found_trees,
-                    )
-                }) == (true, true)
-                {
+            Cell::Lumberyard => {
+                let has_surrounding_lumberyard_and_trees =
+                    neighbors.fold((false, false), |(found_lumberyard, found_trees), c| {
+                        (
+                            c == Cell::Lumberyard || found_lumberyard,
+                            c == Cell::Trees || found_trees,
+                        )
+                    }) == (true, true);
+                if has_surrounding_lumberyard_and_trees {
                     return self;
                 } else {
                     return Cell::Ground;
-                },
+                }
+            },
         }
 
-        return self;
+        self
     }
 }
 
@@ -74,7 +76,7 @@ fn tick(cells: Vec<Vec<Cell>>) -> Vec<Vec<Cell>> {
     let mut new_cells = Vec::with_capacity(cells.len());
     for (y, row) in cells.iter().enumerate() {
         let mut new_row = Vec::with_capacity(row.len());
-        for (x, c) in row.into_iter().enumerate() {
+        for (x, c) in row.iter().enumerate() {
             let new_cell = (*c).next(iter_neighbors(&cells, x, y));
             new_row.push(new_cell);
         }
@@ -105,14 +107,15 @@ fn debug_world(world: &[Vec<Cell>]) {
 }
 
 fn compute_solution(world: &[Vec<Cell>]) -> usize {
-    let (tree_count, lumberyard_count) = world.into_iter().flat_map(|row| row.into_iter()).fold(
-        (0, 0),
-        |(trees, lumberyards), c| match c {
-            Cell::Trees => (trees + 1, lumberyards),
-            Cell::Lumberyard => (trees, lumberyards + 1),
-            Cell::Ground => (trees, lumberyards),
-        },
-    );
+    let (tree_count, lumberyard_count) =
+        world
+            .iter()
+            .flat_map(|row| row.iter())
+            .fold((0, 0), |(trees, lumberyards), c| match c {
+                Cell::Trees => (trees + 1, lumberyards),
+                Cell::Lumberyard => (trees, lumberyards + 1),
+                Cell::Ground => (trees, lumberyards),
+            });
     tree_count * lumberyard_count
 }
 

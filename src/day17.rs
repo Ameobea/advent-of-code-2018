@@ -25,9 +25,7 @@ fn parse_line(line: &str) -> ((usize, Option<usize>), (usize, Option<usize>)) {
 }
 
 fn parse_input() -> impl Iterator<Item = ((usize, Option<usize>), (usize, Option<usize>))> {
-    let parsed_lines = INPUT.lines().filter(|l| !l.is_empty()).map(parse_line);
-
-    parsed_lines
+    INPUT.lines().filter(|l| !l.is_empty()).map(parse_line)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

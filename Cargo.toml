@@ -14,3 +14,7 @@ rayon = "1.0.3"
 slab = "0.4.1"
 pathfinding = "1.1.4"
 structopt = "0.2.14"
+nom = "4.1.1"
+
+[profile.release]
+debug = true

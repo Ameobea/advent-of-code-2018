@@ -154,19 +154,16 @@ fn part2() -> usize {
     }
 
     let mut mappings: [Opcode; 16] = [Opcode::Addi; 16];
-    for (i, mapping) in working_mappings.into_iter().enumerate() {
+    for (i, mapping) in working_mappings.iter().enumerate() {
         mappings[i] = mapping.unwrap();
     }
 
-    for instr in instructions
-        .into_iter()
-        .map(|[opcode_code, in1, in2, out, ..]| Instruction {
-            opcode: mappings[opcode_code],
-            in1,
-            in2,
-            out,
-        })
-    {
+    for instr in instructions.map(|[opcode_code, in1, in2, out, ..]| Instruction {
+        opcode: mappings[opcode_code],
+        in1,
+        in2,
+        out,
+    }) {
         reg.exec(0, instr);
     }
 

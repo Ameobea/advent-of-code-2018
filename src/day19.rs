@@ -18,7 +18,7 @@ fn parse_input() -> (Registers, impl Iterator<Item = Instruction>) {
     reg.ip_register = parse_ip_decl(ip_decl_line);
 
     let iter = lines.filter_map(|l| {
-        if l.is_empty() || l.chars().next().unwrap() == ';' {
+        if l.is_empty() || l.starts_with(';') {
             return None;
         }
 
@@ -127,7 +127,7 @@ fn part2() -> usize {
     // 34: seti 0 0 0; [0] = 0
     // 35: seti 0 4 1; jmp 1
 
-    let number = 10551370;
+    let number = 10_551_370;
     get_all_factors(number).sum()
 }
 
