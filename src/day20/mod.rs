@@ -146,25 +146,7 @@ fn traverse_path(
     )
 }
 
-fn part1() -> usize {
-    let directions = parser::parse_input(INPUT);
-
-    let mut door_distances: HashMap<(isize, isize), usize> = HashMap::new();
-    let _ = traverse_path(
-        directions.into_iter(),
-        &mut door_distances,
-        (0isize, 0isize),
-        0,
-    )
-    .collect::<Vec<_>>();
-
-    let (_, shortest_distance_to_furthest_door) =
-        door_distances.drain().max_by_key(|&(_, dst)| dst).unwrap();
-
-    shortest_distance_to_furthest_door
-}
-
-fn part2() -> usize {
+fn compute_distances() -> impl Iterator<Item = usize> {
     let directions = parser::parse_input(INPUT);
 
     let mut door_distances: HashMap<(isize, isize), usize> = HashMap::new();
@@ -177,12 +159,16 @@ fn part2() -> usize {
     .collect::<Vec<_>>();
 
     door_distances
-        .drain()
-        .filter(|&(_, distance)| distance >= 1000)
-        .count()
+        .into_iter()
+        .map(|(_coord, distance)| distance)
+}
 
-    // 10317: too high
-    // 10312: too high
+fn part1() -> usize { compute_distances().max().unwrap() }
+
+fn part2() -> usize {
+    compute_distances()
+        .filter(|&distance| distance >= 1000)
+        .count()
 }
 
 #[test]

@@ -18,7 +18,6 @@ extern crate slab;
 extern crate structopt;
 #[macro_use]
 extern crate nom;
-extern crate itertools;
 
 use structopt::StructOpt;
 
