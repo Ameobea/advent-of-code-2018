@@ -3,7 +3,7 @@ use std::{
     usize,
 };
 
-use cached::SizedCache;
+use cached::UnboundCache;
 use pathfinding::prelude::*;
 use regex::Regex;
 
@@ -72,7 +72,7 @@ fn get_geologic_index(x: isize, y: isize, target_x: isize, target_y: isize, dept
 }
 
 cached_key! {
-    EROSION: SizedCache<(isize, isize, isize, isize, isize), isize> = SizedCache::with_size(10000);
+    EROSION: UnboundCache<(isize, isize, isize, isize, isize), isize> = UnboundCache::new();
     Key = { (x, y, target_x, target_y, depth) };
 
     fn erosion_level(x: isize, y: isize, target_x: isize, target_y: isize, depth: isize) -> isize = {
@@ -81,7 +81,7 @@ cached_key! {
 }
 
 cached_key! {
-    REGION: SizedCache<(isize, isize, isize, isize, isize), Region> = SizedCache::with_size(10000);
+    REGION: UnboundCache<(isize, isize, isize, isize, isize), Region> = UnboundCache::new();
     Key = { (x, y, target_x, target_y, depth) };
 
     fn get_region_type(x: isize, y: isize, target_x: isize, target_y: isize, depth: isize) -> Region = {
