@@ -165,7 +165,7 @@ fn compute_distances() -> impl Iterator<Item = usize> {
 
 fn part1() -> usize { compute_distances().max().unwrap() }
 
-fn part2() -> usize {
+pub fn part2() -> usize {
     compute_distances()
         .filter(|&distance| distance >= 1000)
         .count()
@@ -236,6 +236,17 @@ fn distance_hashmap_population() {
         traverse_path(directions.into_iter(), &mut actual, (0isize, 0isize), 0).collect::<Vec<_>>();
 
     assert_eq!(expected, actual);
+}
+
+#[cfg(test)]
+mod bench {
+    extern crate test;
+
+    #[bench]
+    fn bench_compute_distances(b: &mut test::Bencher) { b.iter(super::compute_distances) }
+
+    #[bench]
+    fn bench_p2(b: &mut test::Bencher) { b.iter(super::part2) }
 }
 
 pub fn run() {

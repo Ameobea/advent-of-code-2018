@@ -54,25 +54,27 @@ fn debug_world(world: &[Vec<Cell>]) {
 }
 
 fn spread_down(world: &mut Vec<Vec<Cell>>, x: usize, y: usize) -> bool {
-    // println!("down: {:?}", (x, y));
-    // debug_world(world);
     if (y + 1) >= world.len() {
         return false;
     }
 
     if world[y + 1][x] == Cell::Water {
-        if let Some(x_opt) = spread_left(world, x, y + 1, true) {
-            if let Some(x) = x_opt {
+        match spread_left(world, x, y + 1, true) {
+            SpreadResult::Downspout(x) => {
                 world[y + 1][x] = Cell::Sand;
-            }
-            return false;
-        }
-        if let Some(x_opt) = spread_right(world, x, y + 1, true) {
-            if let Some(x) = x_opt {
+                return false;
+            },
+            SpreadResult::WaterCollision => return false,
+            SpreadResult::WallCollision => (),
+        };
+        match spread_right(world, x, y + 1, true) {
+            SpreadResult::Downspout(x) => {
                 world[y + 1][x] = Cell::Sand;
-            }
-            return false;
-        }
+                return false;
+            },
+            SpreadResult::WaterCollision => return false,
+            SpreadResult::WallCollision => (),
+        };
     }
 
     let can_move_down = world[y + 1][x] == Cell::Sand;
@@ -88,17 +90,16 @@ fn spread_down(world: &mut Vec<Vec<Cell>>, x: usize, y: usize) -> bool {
         let pour_location_right = spread_right(world, x, y, world[y][x + 1] == Cell::Water);
 
         let mut spread = true;
-        if let Some(Some(x)) = pour_location_right {
-            spread = spread_down(world, x, y) && spread;
-        } else if let Some(None) = pour_location_right {
-            spread = false;
-        }
-
-        if let Some(Some(x)) = pour_location_left {
-            spread = spread_down(world, x, y) && spread;
-        } else if let Some(None) = pour_location_left {
-            spread = false;
-        }
+        match pour_location_right {
+            SpreadResult::Downspout(x) => spread = spread_down(world, x, y) && spread,
+            SpreadResult::WaterCollision => spread = false,
+            _ => (),
+        };
+        match pour_location_left {
+            SpreadResult::Downspout(x) => spread = spread_down(world, x, y) && spread,
+            SpreadResult::WaterCollision => spread = false,
+            _ => (),
+        };
 
         spread
     } else {
@@ -106,24 +107,21 @@ fn spread_down(world: &mut Vec<Vec<Cell>>, x: usize, y: usize) -> bool {
     }
 }
 
+enum SpreadResult {
+    Downspout(usize),
+    WaterCollision,
+    WallCollision,
+}
+
 /// Returns the x coordinate of the cell at which water will begin to pour downward, unless it hits
 /// a wall or the side of amap in which `None` will be returned.
-fn spread_left(
-    world: &mut Vec<Vec<Cell>>,
-    x: usize,
-    y: usize,
-    ignore_water: bool,
-) -> Option<Option<usize>> {
+fn spread_left(world: &mut Vec<Vec<Cell>>, x: usize, y: usize, ignore_water: bool) -> SpreadResult {
     if x == 0 || world[y][x - 1] == Cell::Clay {
-        return None;
-    }
-
-    if y + 1 < world.len() && world[y + 1][x] == Cell::Sand {
-        return Some(Some(x));
-    }
-
-    if !ignore_water && world[y][x - 1] == Cell::Water {
-        return Some(None);
+        return SpreadResult::WallCollision;
+    } else if y + 1 < world.len() && world[y + 1][x] == Cell::Sand {
+        return SpreadResult::Downspout(x);
+    } else if !ignore_water && world[y][x - 1] == Cell::Water {
+        return SpreadResult::WaterCollision;
     }
 
     world[y][x - 1] = Cell::Water;
@@ -138,17 +136,13 @@ fn spread_right(
     x: usize,
     y: usize,
     ignore_water: bool,
-) -> Option<Option<usize>> {
+) -> SpreadResult {
     if x + 1 == world[0].len() || world[y][x + 1] == Cell::Clay {
-        return None;
-    }
-
-    if y + 1 < world.len() && world[y + 1][x] == Cell::Sand {
-        return Some(Some(x));
-    }
-
-    if !ignore_water && world[y][x + 1] == Cell::Water {
-        return Some(None);
+        return SpreadResult::WallCollision;
+    } else if y + 1 < world.len() && world[y + 1][x] == Cell::Sand {
+        return SpreadResult::Downspout(x);
+    } else if !ignore_water && world[y][x + 1] == Cell::Water {
+        return SpreadResult::WaterCollision;
     }
 
     world[y][x + 1] = Cell::Water;

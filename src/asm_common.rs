@@ -16,8 +16,8 @@ pub enum Opcode {
     Addi,
     Mulr,
     Muli,
-    Barr,
-    Bari,
+    Banr,
+    Bani,
     Borr,
     Bori,
     Setr,
@@ -39,8 +39,8 @@ impl FromStr for Opcode {
             "addi" => Opcode::Addi,
             "mulr" => Opcode::Mulr,
             "muli" => Opcode::Muli,
-            "barr" => Opcode::Barr,
-            "bari" => Opcode::Bari,
+            "banr" => Opcode::Banr,
+            "bani" => Opcode::Bani,
             "borr" => Opcode::Borr,
             "bori" => Opcode::Bori,
             "setr" => Opcode::Setr,
@@ -109,8 +109,8 @@ impl Registers {
             Opcode::Addi => self.regs[instr.in1] + instr.in2,
             Opcode::Mulr => self.regs[instr.in1] * self.regs[instr.in2],
             Opcode::Muli => self.regs[instr.in1] * instr.in2,
-            Opcode::Barr => self.regs[instr.in1] & self.regs[instr.in2],
-            Opcode::Bari => self.regs[instr.in1] & instr.in2,
+            Opcode::Banr => self.regs[instr.in1] & self.regs[instr.in2],
+            Opcode::Bani => self.regs[instr.in1] & instr.in2,
             Opcode::Borr => self.regs[instr.in1] | self.regs[instr.in2],
             Opcode::Bori => self.regs[instr.in1] | instr.in2,
             Opcode::Setr => self.regs[instr.in1],
@@ -149,6 +149,7 @@ impl Display for Instruction {
     }
 }
 
+#[derive(Clone)]
 pub struct Instructions {
     pub ip: usize,
     pub instructions: Vec<Instruction>,
@@ -164,6 +165,7 @@ impl IndexMut<usize> for Instructions {
     fn index_mut(&mut self, i: usize) -> &mut Instruction { &mut self.instructions[i] }
 }
 
+#[derive(Clone)]
 pub struct VM {
     pub regs: Registers,
     pub instructions: Instructions,
@@ -178,9 +180,11 @@ impl VM {
             None => return true,
         };
         let ip = self.ip();
+
         self.instructions.ip = self.regs.exec(ip, cur_instr);
         self.instructions.ip += 1;
-        return false;
+
+        false
     }
 
     /// Runs the VM until it halts.

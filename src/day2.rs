@@ -109,7 +109,6 @@ fn part2() {
             let equality_bytes: u8x32 = equality_mask.select(zeroes, ones);
             // Elements that are equal are now `0usize` and ones that aren't are `1usize`
             let differing_chars = equality_bytes.wrapping_sum();
-            // println!("{:?}\n{:?}\n  {:?}", line, line2, equality_bytes);
 
             if differing_chars == 1 {
                 let line1_chars: [u8; 32] = (*line).into();
@@ -117,10 +116,7 @@ fn part2() {
 
                 for (i, c) in line1_chars[0..27].iter().enumerate() {
                     if unsafe { likely(*c == line2_chars[i]) } {
-                        #[allow(clippy::cast_lossless)]
-                        unsafe {
-                            libc::putchar(*c as libc::c_int)
-                        };
+                        unsafe { libc::putchar(libc::c_int::from(*c)) };
                     }
                 }
                 return;

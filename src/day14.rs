@@ -22,7 +22,7 @@ fn part1() -> u64 {
         .iter()
         .enumerate()
         .fold(0u64, |acc, (i, d)| {
-            acc + (10u64.pow(9 - i as u32) as u64 * *d as u64)
+            acc + (10u64.pow(9 - i as u32) as u64 * u64::from(*d))
         })
 }
 
