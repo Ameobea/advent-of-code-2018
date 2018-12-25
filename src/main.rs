@@ -20,6 +20,7 @@ extern crate structopt;
 extern crate nom;
 #[macro_use]
 extern crate cached;
+extern crate z3;
 
 use structopt::StructOpt;
 

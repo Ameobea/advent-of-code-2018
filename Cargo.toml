@@ -16,6 +16,7 @@ pathfinding = "1.1.4"
 structopt = "0.2.14"
 nom = "4.1.1"
 cached = "0.8.0"
+z3 = "0.3.0"
 
 [profile.release]
 debug = true

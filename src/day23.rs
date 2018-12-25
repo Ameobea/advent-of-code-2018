@@ -1,10 +1,3 @@
-extern crate regex;
-#[macro_use]
-extern crate lazy_static;
-
-use std::fmt::Display;
-use std::fmt::Formatter;
-use std::fmt::Result as FmtResult;
 use std::usize;
 
 use regex::Regex;
@@ -13,7 +6,7 @@ lazy_static! {
     static ref RGX: Regex = Regex::new("pos=<(-?\\d+),(-?\\d+),(-?\\d+)>, r=(\\d+)").unwrap();
 }
 
-const INPUT: &str = include_str!("../input.txt");
+const INPUT: &str = include_str!("../input/day23.txt");
 
 struct Nanobot {
     /// (X,Y,Z)
@@ -84,7 +77,7 @@ fn part1() -> usize {
         .count()
 }
 
-fn part2() -> usize {
+fn part2() -> i64 {
     let nanobots = parse_input().collect::<Vec<_>>();
     let (min_x, max_x, min_y, max_y, min_z, max_z) = nanobots.iter().fold(
         (
@@ -109,74 +102,51 @@ fn part2() -> usize {
         },
     );
 
-    let mut step_size = 2_000_000;
-    let x_steps = (max_x - min_x) / step_size;
-    let y_steps = (max_y - min_y) / step_size;
-    let z_steps = (max_z - min_z) / step_size;
-    let probe_point_count = z_steps * y_steps * x_steps;
+    let z3_conf = z3::Config::new();
+    let ctx = z3::Context::new(&z3_conf);
+    let optimizer = z3::Optimize::new(&ctx);
 
-    println!("probe_point_count: {}", probe_point_count);
-    // let mut probe_points
+    let x = ctx.named_int_const("x");
+    let y = ctx.named_int_const("y");
+    let z = ctx.named_int_const("z");
+    optimizer.assert(&x.gt(&ctx.from_i64((min_x - 1) as i64)));
+    optimizer.assert(&x.lt(&ctx.from_i64((max_x + 1) as i64)));
+    optimizer.assert(&y.gt(&ctx.from_i64((min_y - 1) as i64)));
+    optimizer.assert(&y.lt(&ctx.from_i64((max_y + 1) as i64)));
+    optimizer.assert(&z.gt(&ctx.from_i64((min_z - 1) as i64)));
+    optimizer.assert(&z.lt(&ctx.from_i64((max_z + 1) as i64)));
 
-    let count_in_range = |pt: (isize, isize, isize)| -> usize {
-        nanobots.iter().filter(|bot| bot.in_range_of(pt)).count()
-    };
-
-    let (mut best_in_range, mut best_coord, mut best_distance) = (0, (0, 0, 0), 0);
-    for z in 0..=z_steps {
-        for y in 0..=y_steps {
-            for x in 0..=x_steps {
-                let pt = (
-                    min_x + (x * step_size),
-                    min_y + (y * step_size),
-                    min_z + (z * step_size),
-                );
-                let in_range = count_in_range(pt);
-                let distance_to_origin = pt.0 + pt.1 + pt.2;
-
-                if in_range > best_in_range
-                    || (in_range == best_in_range && distance_to_origin < best_distance)
-                {
-                    best_in_range = in_range;
-                    best_coord = pt;
-                    best_distance = distance_to_origin;
-                }
-            }
-        }
+    fn abs<'ctx, 'a>(ctx: &'ctx z3::Context, x: &'a z3::Ast<'ctx>) -> z3::Ast<'ctx> {
+        x.lt(&ctx.from_i64(0)).ite(&ctx.from_i64(-1).mul(&[&x]), &x)
     }
 
-    // now, brute-force search
-    while step_size > 1 {
-        println!("step_size: {}", step_size);
+    let mut in_range = ctx.from_i64(0);
+    for bot in nanobots {
+        let bot_x = ctx.from_i64(bot.pos.0 as i64);
+        let bot_y = ctx.from_i64(bot.pos.1 as i64);
+        let bot_z = ctx.from_i64(bot.pos.2 as i64);
+        let bot_radius_plus_1 = ctx.from_i64(bot.radius as i64 + 1);
 
-        // 1_000_000_000 iterations
-        for z in -500..=500 {
-            for y in -500..=500 {
-                for x in -500..=500 {
-                    let pt = (
-                        best_coord.0 + (x * (step_size / 500)),
-                        best_coord.1 + (y * (step_size / 500)),
-                        best_coord.2 + (z * (step_size / 500)),
-                    );
-                    let in_range = count_in_range(pt);
-                    let distance_to_origin = pt.0 + pt.1 + pt.2;
-
-                    if in_range > best_in_range
-                        || (in_range == best_in_range && distance_to_origin < best_distance)
-                    {
-                        best_in_range = in_range;
-                        best_coord = pt;
-                        best_distance = distance_to_origin;
-                    }
-                }
-            }
-        }
-        println!("best_in_range: {}, coord: {:?}", best_in_range, best_coord);
-        step_size /= 100;
+        let dist_x = abs(&ctx, &bot_x.sub(&[&x]));
+        let dist_y = abs(&ctx, &bot_y.sub(&[&y]));
+        let dist_z = abs(&ctx, &bot_z.sub(&[&z]));
+        let distance_to_bot = dist_x.add(&[&dist_y, &dist_z]);
+        let is_in_range_of_bot = distance_to_bot.lt(&bot_radius_plus_1);
+        in_range = in_range.add(&[&is_in_range_of_bot.ite(&ctx.from_i64(1), &ctx.from_i64(0))]);
     }
+    optimizer.maximize(&in_range);
 
-    0
-    // not 125406946
+    let dist_x = abs(&ctx, &x);
+    let dist_y = abs(&ctx, &y);
+    let dist_z = abs(&ctx, &z);
+    let distance_to_origin = dist_x.add(&[&dist_y, &dist_z]);
+    optimizer.minimize(&distance_to_origin);
+
+    optimizer.check();
+    let model = optimizer.get_model();
+    let res = model.eval(&distance_to_origin).unwrap().as_i64().unwrap();
+    res
+    // 41105733: too low
 }
 
 pub fn run() {
