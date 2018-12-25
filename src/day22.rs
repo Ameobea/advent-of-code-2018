@@ -72,8 +72,8 @@ fn get_geologic_index(x: isize, y: isize, target_x: isize, target_y: isize, dept
 }
 
 cached_key! {
-    EROSION: UnboundCache<(isize, isize, isize, isize, isize), isize> = UnboundCache::new();
-    Key = { (x, y, target_x, target_y, depth) };
+    EROSION: UnboundCache<(isize, isize), isize> = UnboundCache::new();
+    Key = { (x, y) };
 
     fn erosion_level(x: isize, y: isize, target_x: isize, target_y: isize, depth: isize) -> isize = {
         (get_geologic_index(x, y, target_x, target_y ,depth) + depth) % 20183
@@ -81,8 +81,8 @@ cached_key! {
 }
 
 cached_key! {
-    REGION: UnboundCache<(isize, isize, isize, isize, isize), Region> = UnboundCache::new();
-    Key = { (x, y, target_x, target_y, depth) };
+    REGION: UnboundCache<(isize, isize), Region> = UnboundCache::new();
+    Key = { (x, y) };
 
     fn get_region_type(x: isize, y: isize, target_x: isize, target_y: isize, depth: isize) -> Region = {
         match erosion_level(x, y, target_x, target_y, depth) % 3 {
@@ -151,7 +151,7 @@ fn manhattan_distance(x1: isize, y1: isize, x2: isize, y2: isize) -> isize {
 #[derive(Clone, Copy, PartialEq, Eq)]
 struct Coord(isize, isize, Option<Tool>);
 
-fn part2() -> usize {
+pub fn part2() -> usize {
     let ((target_x, target_y), depth) = parse_input();
 
     astar(
@@ -162,6 +162,14 @@ fn part2() -> usize {
     )
     .unwrap()
     .1
+}
+
+#[cfg(test)]
+mod test {
+    extern crate test;
+
+    #[bench]
+    fn bench_part2(b: &mut test::Bencher) { b.iter(super::part2) }
 }
 
 pub fn run() {
