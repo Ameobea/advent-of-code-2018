@@ -63,12 +63,9 @@ fn part1() -> usize {
             for candidate_constellation in &mut constellations {
                 let mut constellations_should_be_merged = false;
                 for &star in &constellation {
-                    constellations_should_be_merged =
-                        candidate_constellation.iter().any(|&candidate_star| {
-                            let dst = manhattan_distance(candidate_star, star) <= 3;
-                            // println!("{:?} - {:?}: {}", star, candidate_star, dst);
-                            dst
-                        });
+                    constellations_should_be_merged = candidate_constellation
+                        .iter()
+                        .any(|&candidate_star| manhattan_distance(candidate_star, star) <= 3);
                     if constellations_should_be_merged {
                         break;
                     }
@@ -91,7 +88,6 @@ fn part1() -> usize {
                 constellations.push_back(constellation);
 
                 if since_last_match == constellations.len() {
-                    // println!("{:?}", constellations);
                     return constellations.len();
                 }
             } else {
@@ -99,8 +95,6 @@ fn part1() -> usize {
             }
         }
     }
-    // 566: too high
-    // 352: too low
 }
 
 fn part2() -> usize { 0 }

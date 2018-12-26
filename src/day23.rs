@@ -72,6 +72,7 @@ fn part1() -> usize {
         .count()
 }
 
+#[allow(clippy::let_and_return)]
 fn part2() -> i64 {
     let nanobots = parse_input().collect::<Vec<_>>();
     let (min_x, max_x, min_y, max_y, min_z, max_z) = nanobots.iter().fold(
