@@ -15,11 +15,6 @@ struct Nanobot {
 }
 
 impl Nanobot {
-    pub fn in_range_of(&self, pt: (isize, isize, isize)) -> bool {
-        let distance = manhattan_distance(self.pos.0, self.pos.1, self.pos.2, pt.0, pt.1, pt.2);
-        distance <= self.radius
-    }
-
     /// (min_x, max_x, min_y, max_y, min_z, max_x) that this nanobot's signal radius reaches
     fn max_extents(&self) -> (isize, isize, isize, isize, isize, isize) {
         (
@@ -146,7 +141,6 @@ fn part2() -> i64 {
     let model = optimizer.get_model();
     let res = model.eval(&distance_to_origin).unwrap().as_i64().unwrap();
     res
-    // 41105733: too low
 }
 
 pub fn run() {
